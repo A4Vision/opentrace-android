@@ -36,6 +36,7 @@ data class ConnectionRecord(
     var txPower: Int?
 ) : Parcelable {
     override fun toString(): String {
-        return "Central ${central.modelC} - ${central.address} ---> Peripheral ${peripheral.modelP} - ${peripheral.address}"
+        return "Central ${central.modelC} - ${central.address} ---> Peripheral ${peripheral.modelP} - ${peripheral.address}(" +
+                "rssi=$rssi)"
     }
 }

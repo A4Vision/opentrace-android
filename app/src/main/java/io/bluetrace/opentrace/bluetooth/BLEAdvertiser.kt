@@ -86,7 +86,7 @@ class BLEAdvertiser constructor(val serviceUUID: String) {
     //reference
     //https://code.tutsplus.com/tutorials/how-to-advertise-android-as-a-bluetooth-le-peripheral--cms-25426
     fun startAdvertisingLegacy(timeoutInMillis: Long) {
-
+        CentralLog.d(TAG, "[startAdvertise]")
         val randomUUID = UUID.randomUUID().toString()
         val finalString = randomUUID.substring(randomUUID.length - charLength, randomUUID.length)
         CentralLog.d(TAG, "Unique string: $finalString")

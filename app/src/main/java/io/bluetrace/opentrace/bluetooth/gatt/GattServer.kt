@@ -82,12 +82,20 @@ class GattServer constructor(val context: Context, serviceUUIDString: String) {
                                     Charsets.UTF_8
                                 )}"
                             )
+                            CentralLog.i(
+                                TAG,
+                                "Sending response: device $device requestId $requestId value $value"
+                            )
                             bluetoothGattServer?.sendResponse(
                                 device,
                                 requestId,
                                 GATT_SUCCESS,
                                 0,
                                 value
+                            )
+                            CentralLog.i(
+                                TAG,
+                                "ResponseSent"
                             )
 
                         } else {

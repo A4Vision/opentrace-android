@@ -80,6 +80,8 @@ class StreetPassScanner constructor(
                 val device = result.device
                 var rssi = result.rssi // get RSSI value
 
+                CentralLog.d(TAG, "\"scan result - rssi=$rssi\"")
+
                 var txPower: Int? = null
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

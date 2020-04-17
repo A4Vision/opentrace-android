@@ -32,6 +32,7 @@ class BLEScanner constructor(context: Context, uuid: String, reportDelay: Long) 
     }
 
     fun startScan(scanCallback: ScanCallback) {
+        CentralLog.d(TAG, "[startScan]")
         val filter = ScanFilter.Builder()
             .setServiceUuid(ParcelUuid(UUID.fromString(serviceUUID)))
             .build()
