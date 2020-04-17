@@ -74,25 +74,29 @@ class OnboardingActivity : FragmentActivity(),
                 //     user action.
                 CentralLog.d(TAG, "onVerificationCompleted: $receivedCredential")
                 credential = receivedCredential
-                signInWithPhoneAuthCredential(credential)
+//                signInWithPhoneAuthCredential(credential)
                 speedUp = true
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
-                if (e is FirebaseAuthInvalidCredentialsException) {
-                    CentralLog.d(TAG, "FirebaseAuthInvalidCredentialsException", e)
-//                    alertDialog(getString(R.string.verification_failed))
-                    updatePhoneNumberError(getString(R.string.invalid_number))
+                CentralLog.d(TAG, "onVerificationFailed - navigating to next page", e)
+                resendingCode = false
+                navigateToNextPage()
 
-                } else if (e is FirebaseTooManyRequestsException) {
-                    CentralLog.d(TAG, "FirebaseTooManyRequestsException", e)
-                    alertDialog(getString(R.string.too_many_requests))
-                }
-
-                enableFragmentbutton()
-
-                CentralLog.d(TAG, "On Verification failure: ${e.message}")
-                onboardingActivityLoadingProgressBarFrame.visibility = View.GONE
+//
+//                if (e is FirebaseAuthInvalidCredentialsException) {
+//                    CentralLog.d(TAG, "FirebaseAuthInvalidCredentialsException", e)
+////                    alertDialog(getString(R.string.verification_failed))
+//                    updatePhoneNumberError(getString(R.string.invalid_number))
+//
+//                } else if (e is FirebaseTooManyRequestsException) {
+//                    alertDialog(getString(R.string.too_many_requests))
+//                }
+//
+//                enableFragmentbutton()
+//
+//                CentralLog.d(TAG, "On Verification failure: ${e.message}")
+//                onboardingActivityLoadingProgressBarFrame.visibility = View.GONE
             }
 
             override fun onCodeSent(
@@ -138,6 +142,8 @@ class OnboardingActivity : FragmentActivity(),
     private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
         FirebaseAuth.getInstance().signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
+
+
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     CentralLog.d(TAG, "signInWithCredential:success")
@@ -165,25 +171,28 @@ class OnboardingActivity : FragmentActivity(),
             }
     }
 
-    private fun getTemporaryID(): Task<HttpsCallableResult> {
-        return TempIDManager.getTemporaryIDs(this, functions)
-            .addOnCompleteListener {
-                CentralLog.d(TAG, "Retrieved Temporary ID successfully")
-                Utils.getHandShakePin(this, functions).addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        CentralLog.d(TAG, "Retrieved HandShakePin successfully")
-                        navigateToNextPage()
-                    } else {
-                        CentralLog.e(
-                            TAG,
-                            "Failed to retrieve HandShakePin ${it.exception?.message}"
-                        )
-                        updateOTPError(getString(R.string.verification_failed))
-                        onboardingActivityLoadingProgressBarFrame.visibility = View.GONE
-                    }
-                }
-
-            }
+    private fun getTemporaryID(): Int {
+        val x =  TempIDManager.getTemporaryIDs(this, functions);
+        CentralLog.d(TAG, "Retrieved HandShakePin successfully")
+        navigateToNextPage()
+        return x;
+//            .addOnCompleteListener {
+//                CentralLog.d(TAG, "Retrieved Temporary ID successfully")
+//                Utils.getHandShakePin(this, functions).addOnCompleteListener {
+//                    if (it.isSuccessful) {
+//                        CentralLog.d(TAG, "Retrieved HandShakePin successfully")
+//                        navigateToNextPage()
+//                    } else {
+//                        CentralLog.e(
+//                            TAG,
+//                            "Failed to retrieve HandShakePin ${it.exception?.message}"
+//                        )
+//                        updateOTPError(getString(R.string.verification_failed))
+//                        onboardingActivityLoadingProgressBarFrame.visibility = View.GONE
+//                    }
+//                }
+//
+//            }
     }
 
     private var mIsOpenSetting = false
@@ -280,7 +289,7 @@ class OnboardingActivity : FragmentActivity(),
 
     private val bluetoothAdapter: BluetoothAdapter? by lazy(LazyThreadSafetyMode.NONE) {
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothManager.adapter
+        bluetoothManager?.adapter
     }
 
     private val BluetoothAdapter.isDisabled: Boolean
@@ -512,7 +521,8 @@ class OnboardingActivity : FragmentActivity(),
 
     fun validateOTP(otp: String) {
         if (TextUtils.isEmpty(otp) || otp.length < 6) {
-            updateOTPError(getString(R.string.must_be_six_digit))
+//            updateOTPError(getString(R.string.must_be_six_digit))
+            navigateToNextPage();
             return
         }
         onboardingActivityLoadingProgressBarFrame.visibility = View.VISIBLE

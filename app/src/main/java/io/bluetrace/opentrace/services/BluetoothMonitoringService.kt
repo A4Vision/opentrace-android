@@ -333,16 +333,16 @@ class BluetoothMonitoringService : Service(), CoroutineScope {
     private fun actionStart() {
         CentralLog.d(TAG, "Action Start")
 
-        TempIDManager.getTemporaryIDs(this, functions)
-            .addOnCompleteListener {
-                CentralLog.d(TAG, "Get TemporaryIDs completed")
-                //this will run whether it starts or fails.
-                var fetch = TempIDManager.retrieveTemporaryID(this.applicationContext)
-                fetch?.let {
-                    broadcastMessage = it
-                    setupCycles()
-                }
-            }
+        TempIDManager.getTemporaryIDs(this, functions);
+//            .addOnCompleteListener {
+        CentralLog.d(TAG, "Get TemporaryIDs completed")
+        //this will run whether it starts or fails.
+        var fetch = TempIDManager.retrieveTemporaryID(this.applicationContext)
+        fetch?.let {
+            broadcastMessage = it
+            setupCycles()
+        }
+//            }
     }
 
     fun actionUpdateBm() {
@@ -351,18 +351,18 @@ class BluetoothMonitoringService : Service(), CoroutineScope {
             CentralLog.i(TAG, "[TempID] Need to update TemporaryID in actionUpdateBM")
             //need to pull new BM
             TempIDManager.getTemporaryIDs(this, functions)
-                .addOnCompleteListener {
-                    //this will run whether it starts or fails.
-                    var fetch = TempIDManager.retrieveTemporaryID(this.applicationContext)
-                    fetch?.let {
-                        CentralLog.i(TAG, "[TempID] Updated Temp ID")
-                        broadcastMessage = it
-                    }
+//                .addOnCompleteListener {
+            //this will run whether it starts or fails.
+            var fetch = TempIDManager.retrieveTemporaryID(this.applicationContext)
+            fetch?.let {
+                CentralLog.i(TAG, "[TempID] Updated Temp ID")
+                broadcastMessage = it
+            }
 
-                    if (fetch == null) {
-                        CentralLog.e(TAG, "[TempID] Failed to fetch new Temp ID")
-                    }
-                }
+            if (fetch == null) {
+                CentralLog.e(TAG, "[TempID] Failed to fetch new Temp ID")
+            }
+//                }
         } else {
             CentralLog.i(TAG, "[TempID] Don't need to update Temp ID in actionUpdateBM")
         }
@@ -378,14 +378,14 @@ class BluetoothMonitoringService : Service(), CoroutineScope {
             CentralLog.i(TAG, "[TempID] Need to update TemporaryID in actionScan")
             //need to pull new BM
             TempIDManager.getTemporaryIDs(this.applicationContext, functions)
-                .addOnCompleteListener {
-                    //this will run whether it starts or fails.
-                    var fetch = TempIDManager.retrieveTemporaryID(this.applicationContext)
-                    fetch?.let {
-                        broadcastMessage = it
-                        performScan()
-                    }
-                }
+//                .addOnCompleteListener {
+            //this will run whether it starts or fails.
+            var fetch = TempIDManager.retrieveTemporaryID(this.applicationContext)
+            fetch?.let {
+                broadcastMessage = it
+                performScan()
+            }
+//                }
         } else {
             CentralLog.i(TAG, "[TempID] Don't need to update Temp ID in actionScan")
             performScan()

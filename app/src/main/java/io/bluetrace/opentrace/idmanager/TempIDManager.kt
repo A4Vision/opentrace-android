@@ -24,13 +24,16 @@ object TempIDManager {
 
     fun retrieveTemporaryID(context: Context): TemporaryID? {
         val file = File(context.filesDir, "tempIDs")
+
         if (file.exists()) {
             val readback = file.readText()
             CentralLog.d(TAG, "[TempID] fetched broadcastmessage from file:  $readback")
-            var tempIDArrayList =
-                convertToTemporaryIDs(
-                    readback
-                )
+            val arr = Array<TemporaryID>(10) { i: Int ->
+                TemporaryID(1586872264L, "1234567891234567890", 1618667431L)}
+            var tempIDArrayList = arr
+//                convertToTemporaryIDs(
+//                    readback
+//                )
             var tempIDQueue =
                 convertToQueue(
                     tempIDArrayList
@@ -83,13 +86,11 @@ object TempIDManager {
 
     private fun convertToTemporaryIDs(tempIDString: String): Array<TemporaryID> {
         val gson: Gson = GsonBuilder().disableHtmlEscaping().create()
-
         val tempIDResult = gson.fromJson(tempIDString, Array<TemporaryID>::class.java)
         CentralLog.d(
             TAG,
             "[TempID] After GSON conversion: ${tempIDResult[0].tempID} ${tempIDResult[0].startTime}"
         )
-
         return tempIDResult
     }
 
@@ -112,35 +113,54 @@ object TempIDManager {
         return tempIDQueue
     }
 
-    fun getTemporaryIDs(context: Context, functions: FirebaseFunctions): Task<HttpsCallableResult> {
-        return functions.getHttpsCallable("getTempIDs").call().addOnSuccessListener {
-            val result: HashMap<String, Any> = it.data as HashMap<String, Any>
-            val tempIDs = result["tempIDs"]
+    fun getTemporaryIDs(context: Context, functions: FirebaseFunctions): Int {
+        val result = HashMap<String, Any>()
+        val gson: Gson = GsonBuilder().disableHtmlEscaping().create()
+        val arr = Array<TemporaryID>(10) { i: Int ->
+            TemporaryID(1586872264L, "1234567891234567890", 1618667431L)}
 
-            val status = result["status"].toString()
-            if (status.toLowerCase().contentEquals("success")) {
-                CentralLog.w(TAG, "Retrieved Temporary IDs from Server")
-                val gson: Gson = GsonBuilder().disableHtmlEscaping().create()
-                val jsonByteArray = gson.toJson(tempIDs).toByteArray(Charsets.UTF_8)
-                storeTemporaryIDs(
-                    context,
-                    jsonByteArray.toString(Charsets.UTF_8)
-                )
+        val foo = gson.toJson(arr)
+        CentralLog.w(TAG, "TempIDSJson=" + foo)
+        result["status"] = "success";
+        result["tempIDs"] = foo
 
-                val refreshTime = result["refreshTime"].toString()
-                var refresh = refreshTime.toLongOrNull() ?: 0
-                Preference.putNextFetchTimeInMillis(
-                    context,
-                    refresh * 1000
-                )
-                Preference.putLastFetchTimeInMillis(
-                    context,
-                    System.currentTimeMillis() * 1000
-                )
-            }
+        processGetTempIDsResult(result, context)
+//        return functions.getHttpsCallable("getTempIDs").call().addOnSuccessListener {
+//            val result: HashMap<String, Any> = it.data as HashMap<String, Any>
+//            processGetTempIDsResult(result, context)
+//
+//        }.addOnFailureListener {
+//            CentralLog.d(TAG, "[TempID] Error getting Temporary IDs")
+//        }
+        return 123;
+    }
 
-        }.addOnFailureListener {
-            CentralLog.d(TAG, "[TempID] Error getting Temporary IDs")
+    private fun processGetTempIDsResult(
+        result: HashMap<String, Any>,
+        context: Context
+    ) {
+        val tempIDs = result["tempIDs"]
+
+        val status = result["status"].toString()
+        if (status.toLowerCase().contentEquals("success")) {
+            CentralLog.w(TAG, "Retrieved Temporary IDs from Server")
+            val gson: Gson = GsonBuilder().disableHtmlEscaping().create()
+            val jsonByteArray = gson.toJson(tempIDs).toByteArray(Charsets.UTF_8)
+            storeTemporaryIDs(
+                context,
+                jsonByteArray.toString(Charsets.UTF_8)
+            )
+
+            val refreshTime = result["refreshTime"].toString()
+            var refresh = refreshTime.toLongOrNull() ?: 0
+            Preference.putNextFetchTimeInMillis(
+                context,
+                refresh * 1000
+            )
+            Preference.putLastFetchTimeInMillis(
+                context,
+                System.currentTimeMillis() * 1000
+            )
         }
     }
 
